@@ -19,7 +19,7 @@ class Item extends Component {
     }
 
     handleShowInputEle() {
-        this.setState({ ...this.state, showInputEle: !this.state.showInputEle });
+        this.setState(state => ({ ...state, showInputEle: !state.showInputEle }));
         this.state.showInputEle && this.props.updateItemToList(this.state.item);
     }
 

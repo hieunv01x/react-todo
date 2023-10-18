@@ -20,19 +20,17 @@ class List extends Component {
     }
 
     deleteItem(id) {
-        this.setState((prevState) => {
-            let { list, selectedItems } = this.state;
-            list = list.filter(item => item.id !== id);
-            selectedItems = selectedItems.filter(item => item !== id);
-            return { ...prevState, list, selectedItems };
-        });
+        const list = this.state.list.filter(item => item.id !== id);
+        const selectedItems = this.state.selectedItems.filter(item => item !== id);
+        this.setState((prevState) => ({ ...prevState, list, selectedItems }));
+        this.props.updateList(list);
     }
 
     clearCompleted() {
         const list = this.state.list.map(item => {
             return { ...item, status: 2 }
         });
-        this.setState({ ...this.state, list })
+        this.props.updateList(list);
     }
 
     handleSelect(id) {
@@ -43,9 +41,10 @@ class List extends Component {
         } else {
             selectedItems.push(id);
         }
-        this.setState({ ...this.state, selectedItems, isSelectAll: false });
+
+        this.setState(state => ({ ...state, selectedItems, isSelectAll: false }));
         if (selectedItems.length === list.length) {
-            this.setState({ ...this.state, isSelectAll: true });
+            this.setState(state => ({ ...state, isSelectAll: true }));
         }
     }
 
@@ -63,16 +62,16 @@ class List extends Component {
                 } else newList.push(item);
                 return newList;
             }, []);
-            this.setState({ ...this.state, list: [...newList] });
+            this.props.updateList(newList);
         }
     }
 
     handleSelectAll() {
         if (!this.state.isSelectAll) {
             const selectedItems = this.state.list.map(item => item.id);
-            this.setState({ ...this.state, selectedItems, isSelectAll: !this.state.isSelectAll });
+            this.setState(state => ({ ...state, selectedItems, isSelectAll: !state.isSelectAll }));
         } else {
-            this.setState({ ...this.state, selectedItems: [], isSelectAll: !this.state.isSelectAll });
+            this.setState(state => ({ ...state, selectedItems: [], isSelectAll: !state.isSelectAll }));
         }
     }
 
@@ -83,7 +82,7 @@ class List extends Component {
             }
             return i;
         });
-        this.setState({ ...this.state, list })
+        this.setState(state => ({ ...state, list }));
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.setState({ ...this.state, list: nextProps.list });
