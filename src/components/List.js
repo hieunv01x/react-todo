@@ -63,7 +63,7 @@ class List extends Component {
                 } else newList.push(item);
                 return newList;
             }, []);
-            this.setState({ ...this.state, list: newList });
+            this.setState({ ...this.state, list: [...newList] });
         }
     }
 
@@ -85,10 +85,14 @@ class List extends Component {
         });
         this.setState({ ...this.state, list })
     }
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        this.setState({ ...this.state, list: nextProps.list });
+    }
 
     render() {
         const { keyword } = this.props;
         let { list, selectedItems } = this.state;
+
         const isShowClear = list.filter(item => item.status === 1).length > 0;
         if (list && list.length > 0 && keyword !== '') {
             list = list.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
