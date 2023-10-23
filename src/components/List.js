@@ -11,7 +11,7 @@ class List extends Component {
             selectedItems: [],
             isSelectAll: false,
             currentPage: 1,
-            postsPerPage: 3
+            itemsPerPage: 3
         }
 
         this.handleSelectAll = this.handleSelectAll.bind(this);
@@ -29,8 +29,8 @@ class List extends Component {
         const list = this.state.list.filter(item => item.id !== id);
         const selectedItems = this.state.selectedItems.filter(item => item !== id);
         this.setState((prevState) => {
-            let { currentPage, postsPerPage } = prevState;
-            if (Math.ceil(list.length / postsPerPage) < currentPage) currentPage = Math.ceil(list.length / postsPerPage);
+            let { currentPage, itemsPerPage } = prevState;
+            if (Math.ceil(list.length / itemsPerPage) < currentPage) currentPage = Math.ceil(list.length / itemsPerPage);
             return { ...prevState, list, selectedItems, currentPage };
         });
         this.props.updateList(list);
@@ -106,8 +106,8 @@ class List extends Component {
     };
 
     nextPage() {
-        const { list, currentPage, postsPerPage } = this.state;
-        if (currentPage !== Math.ceil(list.length / postsPerPage)) {
+        const { list, currentPage, itemsPerPage } = this.state;
+        if (currentPage !== Math.ceil(list.length / itemsPerPage)) {
             this.setState(state => ({ ...state, currentPage: state.currentPage + 1 }));
         }
     };
@@ -118,7 +118,7 @@ class List extends Component {
 
     render() {
         const { keyword } = this.props;
-        let { list, selectedItems, postsPerPage, currentPage } = this.state;
+        let { list, selectedItems, itemsPerPage, currentPage } = this.state;
         const isShowClear = list.filter(item => item.status === 1).length > 0;
         let elmItem = <tr><td colSpan={4}>No record</td></tr>;
         if (list && list.length > 0) {
@@ -126,9 +126,9 @@ class List extends Component {
                 list = list.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
             }
             list.sort((item1, item2) => item1.status - item2.status);
-            if (Math.ceil(list.length / postsPerPage) < currentPage) currentPage = currentPage - 1;
-            const indexOfLastPost = currentPage * postsPerPage;
-            const indexOfFirstPost = indexOfLastPost - postsPerPage;
+            if (Math.ceil(list.length / itemsPerPage) < currentPage) currentPage = currentPage - 1;
+            const indexOfLastPost = currentPage * itemsPerPage;
+            const indexOfFirstPost = indexOfLastPost - itemsPerPage;
             const currentList = list.slice(indexOfFirstPost, indexOfLastPost);
             elmItem = currentList.map((item, index) => {
                 return (
@@ -164,8 +164,8 @@ class List extends Component {
                             </div>
 
                             <Paginate
-                                postsPerPage={postsPerPage}
-                                totalPosts={list.length}
+                                itemsPerPage={itemsPerPage}
+                                totalItems={list.length}
                                 currentPage={currentPage}
                                 paginate={this.paginate}
                                 previousPage={this.previousPage}

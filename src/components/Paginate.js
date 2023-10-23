@@ -23,10 +23,9 @@ class Paginate extends Component {
     }
 
     render() {
-        
-        const { postsPerPage, totalPosts, currentPage } = this.props;
+        const { itemsPerPage, totalItems, currentPage } = this.props;
         let pageNumbers = [];
-        for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
+        for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
             pageNumbers.push(i);
         }
         return (
