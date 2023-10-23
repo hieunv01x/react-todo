@@ -1,5 +1,6 @@
 import { Component } from "react";
 import Item from "./Item";
+import Paginate from "./Paginate";
 
 class List extends Component {
     constructor(props) {
@@ -8,7 +9,9 @@ class List extends Component {
             keyword: this.props.keyword,
             list: this.props.list,
             selectedItems: [],
-            isSelectAll: false
+            isSelectAll: false,
+            currentPage: 1,
+            postsPerPage: 3
         }
 
         this.handleSelectAll = this.handleSelectAll.bind(this);
@@ -17,12 +20,19 @@ class List extends Component {
         this.clearCompleted = this.clearCompleted.bind(this);
         this.updateItemToList = this.updateItemToList.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
+        this.paginate = this.paginate.bind(this);
+        this.previousPage = this.previousPage.bind(this);
+        this.nextPage = this.nextPage.bind(this);
     }
 
     deleteItem(id) {
         const list = this.state.list.filter(item => item.id !== id);
         const selectedItems = this.state.selectedItems.filter(item => item !== id);
-        this.setState((prevState) => ({ ...prevState, list, selectedItems }));
+        this.setState((prevState) => {
+            let { currentPage, postsPerPage } = prevState;
+            if (Math.ceil(list.length / postsPerPage) < currentPage) currentPage = Math.ceil(list.length / postsPerPage);
+            return { ...prevState, list, selectedItems, currentPage };
+        });
         this.props.updateList(list);
     }
 
@@ -84,23 +94,43 @@ class List extends Component {
         });
         this.setState(state => ({ ...state, list }));
     }
+
+    paginate(currentPage) {
+        this.setState(state => ({ ...state, currentPage }));
+    };
+
+    previousPage() {
+        if (this.state.currentPage !== 1) {
+            this.setState(state => ({ ...state, currentPage: state.currentPage - 1 }));
+        }
+    };
+
+    nextPage() {
+        const { list, currentPage, postsPerPage } = this.state;
+        if (currentPage !== Math.ceil(list.length / postsPerPage)) {
+            this.setState(state => ({ ...state, currentPage: state.currentPage + 1 }));
+        }
+    };
+
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.setState({ ...this.state, list: nextProps.list });
     }
 
     render() {
         const { keyword } = this.props;
-        let { list, selectedItems } = this.state;
-
+        let { list, selectedItems, postsPerPage, currentPage } = this.state;
         const isShowClear = list.filter(item => item.status === 1).length > 0;
-        if (list && list.length > 0 && keyword !== '') {
-            list = list.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
-        }
-
         let elmItem = <tr><td colSpan={4}>No record</td></tr>;
         if (list && list.length > 0) {
+            if (keyword !== '') {
+                list = list.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
+            }
             list.sort((item1, item2) => item1.status - item2.status);
-            elmItem = list.map((item, index) => {
+            if (Math.ceil(list.length / postsPerPage) < currentPage) currentPage = currentPage - 1;
+            const indexOfLastPost = currentPage * postsPerPage;
+            const indexOfFirstPost = indexOfLastPost - postsPerPage;
+            const currentList = list.slice(indexOfFirstPost, indexOfLastPost);
+            elmItem = currentList.map((item, index) => {
                 return (
                     <Item key={index} item={item} selectedItems={selectedItems}
                         handleSelect={this.handleSelect}
@@ -120,18 +150,28 @@ class List extends Component {
                 </table>
                 {
                     list && list.length > 0 && (
-                        <div className="action-area">
-                            <span>{list.length} items left</span>
-                            <div className="action-left">
-                                <button type="button" className="btn btn-light" onClick={() => this.handleSelectAll()}>All</button>
-                                <button type="button" className="btn btn-light" onClick={() => this.handleAction('active')}>Active</button>
-                                <button type="button" className="btn btn-light" onClick={() => this.handleAction('completed')}>Completed</button>
+                        <>
+                            <div className="action-area">
+                                <span>{list.length} items left</span>
+                                <div className="action-left">
+                                    <button type="button" className="btn btn-light" onClick={() => this.handleSelectAll()}>All</button>
+                                    <button type="button" className="btn btn-light" onClick={() => this.handleAction('active')}>Active</button>
+                                    <button type="button" className="btn btn-light" onClick={() => this.handleAction('completed')}>Completed</button>
+                                </div>
+                                <div className="action-right">
+                                    <button type="button" className={`btn btn-light${!isShowClear ? ' isHide' : ''} `} onClick={() => this.clearCompleted()} >Clear Completed</button>
+                                </div>
                             </div>
 
-                            <div className="action-right">
-                                <button type="button" className={`btn btn-light${!isShowClear ? ' isHide' : ''} `} onClick={() => this.clearCompleted()} >Clear Completed</button>
-                            </div>
-                        </div>
+                            <Paginate
+                                postsPerPage={postsPerPage}
+                                totalPosts={list.length}
+                                currentPage={currentPage}
+                                paginate={this.paginate}
+                                previousPage={this.previousPage}
+                                nextPage={this.nextPage}
+                            />
+                        </>
                     )
                 }
             </div>
