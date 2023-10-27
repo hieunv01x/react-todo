@@ -1,29 +1,14 @@
 import { Component, createRef } from "react";
 import List from "./List";
+import { items } from "../mocks/items";
 
 class TodoList extends Component {
     constructor(props) {
         super(props);
         this.state = {
             keyword: '',
-            list: [
-                { id: 1, name: 'Làm việc', status: 2 },
-                { id: 2, name: 'Đi ngủ', status: 1 },
-                { id: 3, name: 'Ăn cơm', status: 2 },
-                { id: 4, name: 'Netflix and Chill', status: 1 },
-                { id: 5, name: 'Làm việc 2', status: 2 },
-                { id: 6, name: 'Đi ngủ 2', status: 1 },
-                { id: 7, name: 'Ăn cơm 2', status: 2 },
-                { id: 8, name: 'Netflix and Chill 2', status: 1 },
-                { id: 9, name: 'Làm việc 3', status: 2 },
-                { id: 10, name: 'Đi ngủ 3', status: 1 },
-                { id: 11, name: 'Ăn cơm 3', status: 2 },
-                { id: 12, name: 'Netflix and Chill 3', status: 1 },
-                { id: 13, name: 'Làm việc 4', status: 2 },
-                { id: 14, name: 'Đi ngủ 4', status: 1 },
-                { id: 15, name: 'Ăn cơm 4', status: 2 },
-                { id: 16, name: 'Netflix and Chill 4', status: 1 }
-            ]
+            list: items,
+            // list: itemsPagingTest,
         }
         this.inputRef = createRef();
         this.handleSearch = this.handleSearch.bind(this);

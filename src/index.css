@@ -49,6 +49,13 @@ code {
   width: 50%;
 }
 
+.panel-table {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  margin-bottom: 20px;
+  height: 124px;
+}
+
 .item {
   display: flex;
   align-items: center;

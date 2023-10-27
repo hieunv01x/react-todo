@@ -1,17 +1,18 @@
 import { Component } from "react";
 import Item from "./Item";
-import Paginate from "./Paginate";
+// import Paginate from "./Paginate";
+import * as constants from '../constants'
 
 class List extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            keyword: this.props.keyword,
-            list: this.props.list,
+            keyword: "",
+            list: "",
             selectedItems: [],
             isSelectAll: false,
             currentPage: 1,
-            itemsPerPage: 3
+            itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE
         }
 
         this.handleSelectAll = this.handleSelectAll.bind(this);
@@ -20,9 +21,9 @@ class List extends Component {
         this.clearCompleted = this.clearCompleted.bind(this);
         this.updateItemToList = this.updateItemToList.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
-        this.paginate = this.paginate.bind(this);
-        this.previousPage = this.previousPage.bind(this);
-        this.nextPage = this.nextPage.bind(this);
+        // this.paginate = this.paginate.bind(this);
+        // this.previousPage = this.previousPage.bind(this);
+        // this.nextPage = this.nextPage.bind(this);
     }
 
     deleteItem(id) {
@@ -95,30 +96,43 @@ class List extends Component {
         this.setState(state => ({ ...state, list }));
     }
 
-    paginate(currentPage) {
-        this.setState(state => ({ ...state, currentPage }));
-    };
+    // paginate(currentPage) {
+    //     this.setState(state => ({ ...state, currentPage }));
+    // };
 
-    previousPage() {
-        if (this.state.currentPage !== 1) {
-            this.setState(state => ({ ...state, currentPage: state.currentPage - 1 }));
-        }
-    };
+    // previousPage() {
+    //     if (this.state.currentPage !== 1) {
+    //         this.setState(state => ({ ...state, currentPage: state.currentPage - 1 }));
+    //     }
+    // };
 
-    nextPage() {
-        const { list, currentPage, itemsPerPage } = this.state;
-        if (currentPage !== Math.ceil(list.length / itemsPerPage)) {
-            this.setState(state => ({ ...state, currentPage: state.currentPage + 1 }));
+    // nextPage() {
+    //     const { list, currentPage, itemsPerPage } = this.state;
+    //     if (currentPage !== Math.ceil(list.length / itemsPerPage)) {
+    //         this.setState(state => ({ ...state, currentPage: state.currentPage + 1 }));
+    //     }
+    // };
+
+    handleScroll(e) {
+        // Chia mỗi đoạn là 3 item (itemsPerPage)
+        // Check scrollTop > 5px của mỗi đoạn.(Tức là scroll qua 5px của item đầu tiên của đoạn)
+        // VD để load 6 item thì cần scroll qua 5px của item thứ 4, tương tự load 9 item thì cần scroll qua 5px item thứ 7
+        if (e.currentTarget.scrollTop === 0) this.setState(state => ({ ...state, itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE }))
+        if (e.currentTarget.scrollTop > (this.state.itemsPerPage - constants.DEFAULT_ITEM_PER_PAGE) * 40 + 5) {
+            this.setState(state => ({ ...state, itemsPerPage: state.itemsPerPage + constants.DEFAULT_ITEM_PER_PAGE }))
         }
-    };
+    }
+
+    UNSAFE_componentWillMount(){
+        this.setState({ ...this.state, list: this.props.list, keyword: this.props.keyword });
+    }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        this.setState({ ...this.state, list: nextProps.list });
+        this.setState({ ...this.state, list: nextProps.list, keyword: nextProps.keyword });
     }
 
     render() {
-        const { keyword } = this.props;
-        let { list, selectedItems, itemsPerPage, currentPage } = this.state;
+        let { list, keyword, selectedItems, itemsPerPage, currentPage } = this.state;
         const isShowClear = list.filter(item => item.status === 1).length > 0;
         let elmItem = <tr><td colSpan={4}>No record</td></tr>;
         if (list && list.length > 0) {
@@ -143,11 +157,13 @@ class List extends Component {
 
         return (
             <div className="panel">
-                <table className="table table-bordered table-hover">
-                    <tbody>
-                        {elmItem}
-                    </tbody>
-                </table>
+                <div className="panel-table" onScroll={(e) => this.handleScroll(e)}>
+                    <table className="table table-bordered table-hover">
+                        <tbody>
+                            {elmItem}
+                        </tbody>
+                    </table>
+                </div>
                 {
                     list && list.length > 0 && (
                         <>
@@ -163,14 +179,14 @@ class List extends Component {
                                 </div>
                             </div>
 
-                            <Paginate
+                            {/* <Paginate
                                 itemsPerPage={itemsPerPage}
                                 totalItems={list.length}
                                 currentPage={currentPage}
                                 paginate={this.paginate}
                                 previousPage={this.previousPage}
                                 nextPage={this.nextPage}
-                            />
+                            /> */}
                         </>
                     )
                 }

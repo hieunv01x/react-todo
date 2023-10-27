@@ -5,7 +5,7 @@ class Item extends Component {
         super(props);
         this.state = {
             showInputEle: false,
-            item: this.props.item
+            item: {}
         }
         this.handleShowInputEle = this.handleShowInputEle.bind(this);
     }
@@ -18,7 +18,7 @@ class Item extends Component {
         this.props.handleSelect(id);
     }
 
-    handleShowInputEle() {
+    handleShowInputEle(e) {
         this.setState(state => ({ ...state, showInputEle: !state.showInputEle }));
         this.state.showInputEle && this.props.updateItemToList(this.state.item);
     }
@@ -31,8 +31,17 @@ class Item extends Component {
         });
     }
 
+    UNSAFE_componentWillMount() {
+        this.setState({ ...this.state, showInputEle: this.state.showInputEle || false,item: this.props.item });
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        this.setState({ ...this.state, showInputEle: nextProps.showInputEle || false, item: nextProps.item });
+    }
+
     render() {
-        const { item, selectedItems } = this.props;
+        const { item } = this.state;
+        const { selectedItems } = this.props;
         const isChecked = selectedItems.length > 0 && selectedItems.includes(item.id);
 
         return (
@@ -46,7 +55,7 @@ class Item extends Component {
                                 className="form-control"
                                 value={item.name}
                                 onChange={(e) => this.updateItem(e)}
-                                onBlur={() => this.handleShowInputEle()}
+                                onBlur={(e) => this.handleShowInputEle(e)}
                                 autoFocus
                             />
                         ) : (
