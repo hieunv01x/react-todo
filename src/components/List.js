@@ -87,7 +87,6 @@ class List extends Component {
     }
 
     updateItemToList(item) {
-        console.log("item", item);
         const list = this.state.list.map(i => {
             if (i.id === item.id) {
                 return { ...i, name: item.name }

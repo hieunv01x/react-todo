@@ -8,7 +8,6 @@ const TodoList = () => {
     const [list, setList] = useState([]);
 
     const updateList = (list) => {
-        console.log("list: ", list);
         setList([...list]);
     }
 
