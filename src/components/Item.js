@@ -1,74 +1,54 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
+import * as constants from '../constants'
 
-class Item extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showInputEle: false,
-            item: {}
-        }
-        this.handleShowInputEle = this.handleShowInputEle.bind(this);
+const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateItemToList }) => {
+    const [showInputEle, setShowInputEle] = useState(false);
+    const [item, setItem] = useState({});
+    const [selectedItems, setSelectedItems] = useState([])
+
+    const handleShowInputEle = () => {
+        setShowInputEle(!showInputEle);
+        showInputEle && updateItemToList(item);
     }
 
-    deleteItem(id) {
-        this.props.deleteItem(id);
+    const updateItem = (e) => {
+        setItem({ ...item, name: e.target.value });
     }
 
-    toggleCheck(id) {
-        this.props.handleSelect(id);
-    }
+    useEffect(() => {
+        setItem(itemProps);
+    }, [itemProps])
 
-    handleShowInputEle(e) {
-        this.setState(state => ({ ...state, showInputEle: !state.showInputEle }));
-        this.state.showInputEle && this.props.updateItemToList(this.state.item);
-    }
+    useEffect(() => {
+        setSelectedItems(selectedItemsProps);
+    }, [selectedItemsProps])
 
-    updateItem(e) {
-        this.setState((prevState) => {
-            const { item } = this.props;
-            item.name = e.target.value;
-            return { ...prevState, item };
-        });
-    }
+    const isChecked = selectedItems.length > 0 && selectedItems.includes(item.id);
 
-    UNSAFE_componentWillMount() {
-        this.setState({ ...this.state, showInputEle: this.state.showInputEle || false,item: this.props.item });
-    }
-
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        this.setState({ ...this.state, showInputEle: nextProps.showInputEle || false, item: nextProps.item });
-    }
-
-    render() {
-        const { item } = this.state;
-        const { selectedItems } = this.props;
-        const isChecked = selectedItems.length > 0 && selectedItems.includes(item.id);
-
-        return (
-            <tr>
-                <td className={`item${item.status === 1 ? " isChecked" : ""}`}>
-                    <input type="checkbox" className="item-checkbox" checked={isChecked} onChange={() => this.toggleCheck(item.id)} />
-                    {
-                        this.state.showInputEle ? (
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={item.name}
-                                onChange={(e) => this.updateItem(e)}
-                                onBlur={(e) => this.handleShowInputEle(e)}
-                                autoFocus
-                            />
-                        ) : (
-                            <span className={`item-label${item.status === 1 ? " isChecked" : ""}`} onDoubleClick={() => this.handleShowInputEle()}>
-                                {item.name}
-                            </span>
-                        )
-                    }
-                    <span className="icon-delete" onClick={() => this.deleteItem(item.id)}>x</span>
-                </td>
-            </tr>
-        );
-    }
+    return (
+        <tr>
+            <td className={`item${item.status === constants.COMPLETED_STATUS ? " isChecked" : ""}`}>
+                <input type="checkbox" className="item-checkbox" checked={isChecked} onChange={() => handleSelect(item.id)} />
+                {
+                    showInputEle ? (
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={item.name}
+                            onChange={(e) => updateItem(e)}
+                            onBlur={() => handleShowInputEle()}
+                            autoFocus
+                        />
+                    ) : (
+                        <span className={`item-label${item.status === constants.COMPLETED_STATUS ? " isChecked" : ""}`} onDoubleClick={() => handleShowInputEle()}>
+                            {item.name}
+                        </span>
+                    )
+                }
+                <span className="icon-delete" onClick={() => deleteItem(item.id)}>x</span>
+            </td>
+        </tr>
+    );
 }
 
 export default Item;

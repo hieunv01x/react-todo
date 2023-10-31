@@ -1,53 +1,44 @@
 import { Component } from 'react';
 
-class Paginate extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {}
+const Paginate = ({ itemsPerPage, totalItems, currentPage }) => {
 
-        this.paginate = this.paginate.bind(this);
-        this.previousPage = this.previousPage.bind(this);
-        this.nextPage = this.nextPage.bind(this);
-    }
-
-    paginate(number) {
+    const paginate = (number) => {
         this.props.paginate(number);
     }
 
-    previousPage() {
+    const previousPage = () => {
         this.props.previousPage();
     }
 
-    nextPage() {
+    const nextPage = () => {
         this.props.nextPage();
     }
 
-    render() {
-        const { itemsPerPage, totalItems, currentPage } = this.props;
-        let pageNumbers = [];
-        for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
-            pageNumbers.push(i);
-        }
-        return (
-            <div className="pagination-container">
-                <ul className="pagination">
-                    <li onClick={() => this.previousPage()} className="page-number">
-                        Prev
-                    </li>
-                    {pageNumbers.map((number) => (
-                        <li key={number}
-                            onClick={() => this.paginate(number)}
-                            className={`page-number${number === currentPage ? " active" : ""}`} >
-                            {number}
-                        </li>
-                    ))}
-                    <li onClick={() => this.nextPage()} className="page-number">
-                        Next
-                    </li>
-                </ul>
-            </div>
-        );
+    // const pageNumbers = [...Array(nPages + 1).keys()].slice(1);
+
+    let pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
+        pageNumbers.push(i);
     }
+    return (
+        <div className="pagination-container">
+            <ul className="pagination">
+                <li onClick={() => previousPage()} className="page-number">
+                    Prev
+                </li>
+                {pageNumbers.map((number) => (
+                    <li key={number}
+                        onClick={() => paginate(number)}
+                        className={`page-number${number === currentPage ? " active" : ""}`} >
+                        {number}
+                    </li>
+                ))}
+                <li onClick={() => nextPage()} className="page-number">
+                    Next
+                </li>
+            </ul>
+        </div>
+    );
 };
 
 export default Paginate;

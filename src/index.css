@@ -16,6 +16,16 @@ code {
   box-sizing: border-box;
 }
 
+.light {
+  background-color: white;
+  color: black;
+}
+
+.dark {
+  background-color: black;
+  color: white;
+}
+
 .containers {
   display: flex;
   flex-direction: column;
@@ -25,11 +35,23 @@ code {
 }
 
 .header {
+  display: flex;
+  justify-content: space-between;
   height: 70px;
   padding: 15px;
   border-bottom: 1px solid #cbc8c8;
+}
+
+.header h2 {
   text-shadow: #6c602f 5px 0 20px;
   font-family: cursive;
+}
+
+.theme-change-btn {
+  border: 1px solid;
+  border-radius: 10px;
+  border-color: #d8d8d8;
+  border-bottom-color: #d8d8d8;
 }
 
 .main {
@@ -140,39 +162,39 @@ code {
 
 /* Paging */
 ul {
-	list-style: none;
+  list-style: none;
 }
 
 .pagination {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	margin-top: 50px;
-	gap: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+  gap: 20px;
 }
 
 .pagination .page-number {
-	font-size: 16px;
-	font-weight: 600;
-	color: #00a8ff;
-	background: #fff;
-	padding: 10px 20px;
-	border-radius: 10px;
-	cursor: pointer;
-	transition: all 0.2s ease;
+  font-size: 16px;
+  font-weight: 600;
+  color: #00a8ff;
+  background: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .pagination .page-number:hover {
-	color: #fff;
-	background: #a7a5c8;
+  color: #fff;
+  background: #a7a5c8;
 }
 
 .pagination .active {
-	color: #fff;
-	background: #2626e3;
+  color: #fff;
+  background: #2626e3;
 }
 
 .pagination .active:hover {
-	color: #00a8ff;
-	background: #0f38e9;
+  color: #00a8ff;
+  background: #0f38e9;
 }

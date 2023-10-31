@@ -1,13 +1,12 @@
-import { Component } from "react";
+import { useThemeContext } from "../providers/ThemeProvider";
 
-class Footer extends Component {
-    render() {
-        return (
-            <footer className="footer">
-                <p>Footer</p>
-            </footer>
-        )
-    }
+const Footer = () => {
+    const { theme } = useThemeContext();
+    return (
+        <footer className={`footer ${theme}`}>
+            <p>Footer</p>
+        </footer>
+    )
 }
 
 export default Footer;

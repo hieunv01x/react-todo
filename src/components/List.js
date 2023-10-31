@@ -87,6 +87,7 @@ class List extends Component {
     }
 
     updateItemToList(item) {
+        console.log("item", item);
         const list = this.state.list.map(i => {
             if (i.id === item.id) {
                 return { ...i, name: item.name }
@@ -94,6 +95,7 @@ class List extends Component {
             return i;
         });
         this.setState(state => ({ ...state, list }));
+        this.props.updateList(list);
     }
 
     // paginate(currentPage) {
@@ -124,11 +126,11 @@ class List extends Component {
     }
 
     UNSAFE_componentWillMount(){
-        this.setState({ ...this.state, list: this.props.list, keyword: this.props.keyword });
+        this.setState({ ...this.state, list: this.props.listProps, keyword: this.props.keyword });
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        this.setState({ ...this.state, list: nextProps.list, keyword: nextProps.keyword });
+        this.setState({ ...this.state, list: nextProps.listProps, keyword: nextProps.keyword });
     }
 
     render() {
@@ -146,7 +148,7 @@ class List extends Component {
             const currentList = list.slice(indexOfFirstPost, indexOfLastPost);
             elmItem = currentList.map((item, index) => {
                 return (
-                    <Item key={index} item={item} selectedItems={selectedItems}
+                    <Item key={index} itemProps={item} selectedItemsProps={selectedItems}
                         handleSelect={this.handleSelect}
                         updateItemToList={this.updateItemToList}
                         deleteItem={this.deleteItem}
