@@ -1,15 +1,12 @@
 import List from "./List";
 import { items } from "../mocks/items";
 import { useEffect, useState } from "react";
+import { useThemeContext } from "../providers/ThemeProvider";
 
 const TodoList = () => {
-    // list: itemsPagingTest
+    const { theme } = useThemeContext();
     const [keyword, setKeyword] = useState('');
     const [list, setList] = useState([]);
-
-    const updateList = (list) => {
-        setList([...list]);
-    }
 
     const handleSearch = (e) => {
         const keyword = e.target.value;
@@ -21,19 +18,19 @@ const TodoList = () => {
             const maxItem = list.reduce((currentItem, nextItem) => {
                 return currentItem.id > nextItem.id ? currentItem : nextItem;
             });
-            const newList = { id: maxItem.id + 1, name: e.target.value, status: 2 };
+            const newItem = { id: maxItem.id + 1, name: e.target.value, status: 2 };
             setKeyword('');
-            setList(newList);
+            setList([...list, newItem]);
             e.target.value = '';
         }
     }
 
     useEffect(() => {
-        setList(items);
+        setList(items); //itemsPagingTest
     }, []);
 
     return (
-        <main className="main">
+        <main className={`main ${theme}`}>
             <div className="content">
                 <div className="search-area">
                     <div className="input-group">
@@ -41,7 +38,7 @@ const TodoList = () => {
                             onChange={(e) => handleSearch(e)}
                             onKeyDown={(e) => checkKeyDown(e)} />
                     </div>
-                    <List listProps={list} keyword={keyword} updateList={updateList} />
+                    <List listProps={list} keyword={keyword} updateList={setList} />
                 </div>
             </div>
         </main>

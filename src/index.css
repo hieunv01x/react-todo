@@ -22,7 +22,7 @@ code {
 }
 
 .dark {
-  background-color: black;
+  background-color: #060730;
   color: white;
 }
 
@@ -72,7 +72,7 @@ code {
 }
 
 .panel-table {
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   margin-bottom: 20px;
   height: 124px;

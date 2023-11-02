@@ -1,5 +1,3 @@
-import { Component } from 'react';
-
 const Paginate = ({ itemsPerPage, totalItems, currentPage }) => {
 
     const paginate = (number) => {
@@ -13,8 +11,6 @@ const Paginate = ({ itemsPerPage, totalItems, currentPage }) => {
     const nextPage = () => {
         this.props.nextPage();
     }
-
-    // const pageNumbers = [...Array(nPages + 1).keys()].slice(1);
 
     let pageNumbers = [];
     for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {

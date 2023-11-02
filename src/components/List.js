@@ -1,51 +1,39 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
 import Item from "./Item";
 // import Paginate from "./Paginate";
 import * as constants from '../constants'
 
-class List extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            keyword: "",
-            list: "",
-            selectedItems: [],
-            isSelectAll: false,
-            currentPage: 1,
-            itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE
-        }
+const defaultState = {
+    selectedItems: [],
+    isSelectAll: false,
+    currentPage: 1,
+    itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE,
+}
 
-        this.handleSelectAll = this.handleSelectAll.bind(this);
-        this.handleSelect = this.handleSelect.bind(this);
-        this.handleAction = this.handleAction.bind(this);
-        this.clearCompleted = this.clearCompleted.bind(this);
-        this.updateItemToList = this.updateItemToList.bind(this);
-        this.deleteItem = this.deleteItem.bind(this);
-        // this.paginate = this.paginate.bind(this);
-        // this.previousPage = this.previousPage.bind(this);
-        // this.nextPage = this.nextPage.bind(this);
-    }
+const List = ({ listProps, keyword, updateList }) => {
+    const [currentState, setCurrentState] = useState(defaultState);
+    const [list, setList] = useState([]);
+    const [elmItem, setElmItem] = useState(<></>);
 
-    deleteItem(id) {
-        const list = this.state.list.filter(item => item.id !== id);
-        const selectedItems = this.state.selectedItems.filter(item => item !== id);
-        this.setState((prevState) => {
+    const deleteItem = (id) => {
+        const newList = list.filter(item => item.id !== id);
+        const selectedItems = currentState.selectedItems.filter(item => item !== id);
+        setCurrentState((prevState) => {
             let { currentPage, itemsPerPage } = prevState;
-            if (Math.ceil(list.length / itemsPerPage) < currentPage) currentPage = Math.ceil(list.length / itemsPerPage);
-            return { ...prevState, list, selectedItems, currentPage };
+            if (Math.ceil(newList.length / itemsPerPage) < currentPage) currentPage = Math.ceil(newList.length / itemsPerPage);
+            return { ...prevState, selectedItems, currentPage };
         });
-        this.props.updateList(list);
+        const listUpdated = [...listProps];
+        updateList(listUpdated.filter(item => item.id !== id));
     }
 
-    clearCompleted() {
-        const list = this.state.list.map(item => {
-            return { ...item, status: 2 }
-        });
-        this.props.updateList(list);
+    const clearCompleted = () => {
+        const listUpdated = [...listProps];
+        updateList(listUpdated.map(item => ({ ...item, status: 2 })));
     }
 
-    handleSelect(id) {
-        const { selectedItems, list } = this.state;
+    const handleSelect = (id) => {
+        const { selectedItems } = currentState;
         const index = selectedItems.indexOf(id);
         if (index > -1) {
             selectedItems.splice(index, 1);
@@ -53,48 +41,46 @@ class List extends Component {
             selectedItems.push(id);
         }
 
-        this.setState(state => ({ ...state, selectedItems, isSelectAll: false }));
-        if (selectedItems.length === list.length) {
-            this.setState(state => ({ ...state, isSelectAll: true }));
-        }
+        setCurrentState(state => ({ ...state, selectedItems, isSelectAll: selectedItems.length === list.length ? true : false }));
     }
 
-    handleAction(action) {
-        const { list, selectedItems } = this.state;
+    const handleAction = (action) => {
+        const { selectedItems } = currentState;
         if (selectedItems.length > 0) {
             const actionList = list.filter(item => selectedItems.includes(item.id)).map(item => {
                 return { ...item, status: action === 'active' ? 2 : 1 };
             });
-
-            const newList = list.reduce((newList, item) => {
+            const listUpdated = [...listProps];
+            const newList = listUpdated.reduce((newList, item) => {
                 let itemsFromActionList = actionList.filter(({ id }) => id === item.id);
                 if (itemsFromActionList.length > 0) {
                     newList.push(...itemsFromActionList);
                 } else newList.push(item);
                 return newList;
             }, []);
-            this.props.updateList(newList);
+
+            updateList(newList);
         }
     }
 
-    handleSelectAll() {
-        if (!this.state.isSelectAll) {
-            const selectedItems = this.state.list.map(item => item.id);
-            this.setState(state => ({ ...state, selectedItems, isSelectAll: !state.isSelectAll }));
+    const handleSelectAll = () => {
+        if (!currentState.isSelectAll) {
+            const selectedItems = list.map(item => item.id);
+            setCurrentState(state => ({ ...state, selectedItems, isSelectAll: !state.isSelectAll }));
         } else {
-            this.setState(state => ({ ...state, selectedItems: [], isSelectAll: !state.isSelectAll }));
+            setCurrentState(state => ({ ...state, selectedItems: [], isSelectAll: !state.isSelectAll }));
         }
     }
 
-    updateItemToList(item) {
-        const list = this.state.list.map(i => {
+    const updateItemToList = (item) => {
+        const listUpdated = [...listProps];
+        const newList = listUpdated.map(i => {
             if (i.id === item.id) {
                 return { ...i, name: item.name }
             }
             return i;
         });
-        this.setState(state => ({ ...state, list }));
-        this.props.updateList(list);
+        updateList(newList);
     }
 
     // paginate(currentPage) {
@@ -114,73 +100,76 @@ class List extends Component {
     //     }
     // };
 
-    handleScroll(e) {
+    const handleScroll = (e) => {
         // Chia mỗi đoạn là 3 item (itemsPerPage)
         // Check scrollTop > 5px của mỗi đoạn.(Tức là scroll qua 5px của item đầu tiên của đoạn)
         // VD để load 6 item thì cần scroll qua 5px của item thứ 4, tương tự load 9 item thì cần scroll qua 5px item thứ 7
-        if (e.currentTarget.scrollTop === 0) this.setState(state => ({ ...state, itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE }))
-        if (e.currentTarget.scrollTop > (this.state.itemsPerPage - constants.DEFAULT_ITEM_PER_PAGE) * 40 + 5) {
-            this.setState(state => ({ ...state, itemsPerPage: state.itemsPerPage + constants.DEFAULT_ITEM_PER_PAGE }))
+        if (e.currentTarget.scrollTop === 0) setCurrentState(state => ({ ...state, itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE }))
+        if (e.currentTarget.scrollTop > (currentState.itemsPerPage - constants.DEFAULT_ITEM_PER_PAGE) * 40 + 5) {
+            setCurrentState(state => ({ ...state, itemsPerPage: state.itemsPerPage + constants.DEFAULT_ITEM_PER_PAGE }))
         }
     }
 
-    UNSAFE_componentWillMount(){
-        this.setState({ ...this.state, list: this.props.listProps, keyword: this.props.keyword });
-    }
+    useEffect(() => {
+        setList(listProps);
+    }, [listProps]);
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        this.setState({ ...this.state, list: nextProps.listProps, keyword: nextProps.keyword });
-    }
-
-    render() {
-        let { list, keyword, selectedItems, itemsPerPage, currentPage } = this.state;
-        const isShowClear = list.filter(item => item.status === 1).length > 0;
+    useEffect(() => {
+        let searchResults = [...listProps];
+        let { selectedItems, itemsPerPage, currentPage } = currentState;
         let elmItem = <tr><td colSpan={4}>No record</td></tr>;
-        if (list && list.length > 0) {
-            if (keyword !== '') {
-                list = list.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
-            }
-            list.sort((item1, item2) => item1.status - item2.status);
-            if (Math.ceil(list.length / itemsPerPage) < currentPage) currentPage = currentPage - 1;
+        if (keyword !== '') {
+            searchResults = searchResults.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
+        }
+        searchResults.sort((item1, item2) => {
+            return item1.status - item2.status || item1.id - item2.id;
+        });
+        if (searchResults && searchResults.length > 0) {
+            if (Math.ceil(searchResults.length / itemsPerPage) < currentPage) currentPage = currentPage - 1;
             const indexOfLastPost = currentPage * itemsPerPage;
             const indexOfFirstPost = indexOfLastPost - itemsPerPage;
-            const currentList = list.slice(indexOfFirstPost, indexOfLastPost);
+            const currentList = searchResults.slice(indexOfFirstPost, indexOfLastPost);
             elmItem = currentList.map((item, index) => {
                 return (
                     <Item key={index} itemProps={item} selectedItemsProps={selectedItems}
-                        handleSelect={this.handleSelect}
-                        updateItemToList={this.updateItemToList}
-                        deleteItem={this.deleteItem}
+                        handleSelect={handleSelect}
+                        updateItemToList={updateItemToList}
+                        deleteItem={deleteItem}
                     />
                 );
             });
         };
+        setList(searchResults);
+        setElmItem(elmItem);
+    }, [currentState, listProps, keyword]);
 
-        return (
-            <div className="panel">
-                <div className="panel-table" onScroll={(e) => this.handleScroll(e)}>
-                    <table className="table table-bordered table-hover">
-                        <tbody>
-                            {elmItem}
-                        </tbody>
-                    </table>
-                </div>
-                {
-                    list && list.length > 0 && (
-                        <>
-                            <div className="action-area">
-                                <span>{list.length} items left</span>
-                                <div className="action-left">
-                                    <button type="button" className="btn btn-light" onClick={() => this.handleSelectAll()}>All</button>
-                                    <button type="button" className="btn btn-light" onClick={() => this.handleAction('active')}>Active</button>
-                                    <button type="button" className="btn btn-light" onClick={() => this.handleAction('completed')}>Completed</button>
-                                </div>
-                                <div className="action-right">
-                                    <button type="button" className={`btn btn-light${!isShowClear ? ' isHide' : ''} `} onClick={() => this.clearCompleted()} >Clear Completed</button>
-                                </div>
+    const isShowClear = list.filter(item => item.status === 1).length > 0;
+
+    return (
+        <div className="panel">
+            <div className="panel-table" onScroll={(e) => handleScroll(e)}>
+                <table className="table table-bordered table-hover">
+                    <tbody>
+                        {elmItem}
+                    </tbody>
+                </table>
+            </div>
+            {
+                list && list.length > 0 && (
+                    <>
+                        <div className="action-area">
+                            <span>{list.length} items left</span>
+                            <div className="action-left">
+                                <button type="button" className="btn btn-light" onClick={() => handleSelectAll()}>All</button>
+                                <button type="button" className="btn btn-light" onClick={() => handleAction('active')}>Active</button>
+                                <button type="button" className="btn btn-light" onClick={() => handleAction('completed')}>Completed</button>
                             </div>
+                            <div className="action-right">
+                                <button type="button" className={`btn btn-light${!isShowClear ? ' isHide' : ''} `} onClick={() => clearCompleted()} >Clear Completed</button>
+                            </div>
+                        </div>
 
-                            {/* <Paginate
+                        {/* <Paginate
                                 itemsPerPage={itemsPerPage}
                                 totalItems={list.length}
                                 currentPage={currentPage}
@@ -188,12 +177,11 @@ class List extends Component {
                                 previousPage={this.previousPage}
                                 nextPage={this.nextPage}
                             /> */}
-                        </>
-                    )
-                }
-            </div>
-        );
-    }
+                    </>
+                )
+            }
+        </div>
+    );
 }
 
 export default List;
