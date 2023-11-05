@@ -1,19 +1,25 @@
-import List from "./List";
-import { items } from "../mocks/items";
+import List from "../List";
+import { items } from "../../mocks/items";
 import { useEffect, useState } from "react";
-import { useThemeContext } from "../providers/ThemeProvider";
+import { useThemeContext } from "../../providers/ThemeProvider";
+
+export type ItemType = {
+    id: number,
+    name: string,
+    status: number
+}
 
 const TodoList = () => {
     const { theme } = useThemeContext();
     const [keyword, setKeyword] = useState('');
-    const [list, setList] = useState([]);
+    const [list, setList] = useState<ItemType[]>([]);
 
-    const handleSearch = (e) => {
+    const handleSearch = (e: any) => {
         const keyword = e.target.value;
         setKeyword(keyword);
     }
 
-    const checkKeyDown = (e) => {
+    const checkKeyDown = (e: any) => {
         if (e.key === 'Enter' && e.target.value.trim() !== '') {
             const maxItem = list.reduce((currentItem, nextItem) => {
                 return currentItem.id > nextItem.id ? currentItem : nextItem;

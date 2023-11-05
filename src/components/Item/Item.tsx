@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
-import * as constants from '../constants'
+import * as constants from '../../constants'
+import { ItemType } from "../TodoList";
 
-const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateItemToList }) => {
+export type PropsType = {
+    itemProps: ItemType,
+    selectedItemsProps: number[],
+    deleteItem: React.Dispatch<React.SetStateAction<number>>,
+    handleSelect: React.Dispatch<React.SetStateAction<number>>,
+    updateItemToList: React.Dispatch<React.SetStateAction<ItemType>>
+}
+
+const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateItemToList }: PropsType) => {
     const [showInputEle, setShowInputEle] = useState(false);
-    const [item, setItem] = useState({});
-    const [selectedItems, setSelectedItems] = useState([])
+    const [item, setItem] = useState<ItemType>({ id: 0, name: '', status: 2 });
+    const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
     const handleShowInputEle = () => {
         setShowInputEle(!showInputEle);
         showInputEle && updateItemToList(item);
     }
 
-    const updateItem = (e) => {
+    const updateItem = (e: any) => {
         setItem({ ...item, name: e.target.value });
     }
 

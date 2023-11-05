@@ -1,4 +1,4 @@
-import { useThemeContext } from "../providers/ThemeProvider";
+import { useThemeContext } from "../../providers/ThemeProvider";
 
 const Header = () => {
     const { theme, toggleTheme } = useThemeContext();

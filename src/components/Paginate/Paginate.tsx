@@ -1,18 +1,8 @@
-const Paginate = ({ itemsPerPage, totalItems, currentPage }) => {
+import { useState } from "react";
 
-    const paginate = (number) => {
-        this.props.paginate(number);
-    }
+const Paginate = ({ itemsPerPage, totalItems, currentPage, paginate, previousPage, nextPage }) => {
 
-    const previousPage = () => {
-        this.props.previousPage();
-    }
-
-    const nextPage = () => {
-        this.props.nextPage();
-    }
-
-    let pageNumbers = [];
+    let pageNumbers = useState<number>();
     for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
         pageNumbers.push(i);
     }
@@ -22,7 +12,7 @@ const Paginate = ({ itemsPerPage, totalItems, currentPage }) => {
                 <li onClick={() => previousPage()} className="page-number">
                     Prev
                 </li>
-                {pageNumbers.map((number) => (
+                {pageNumbers.map((number: number) => (
                     <li key={number}
                         onClick={() => paginate(number)}
                         className={`page-number${number === currentPage ? " active" : ""}`} >

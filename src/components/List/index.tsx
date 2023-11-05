@@ -1,30 +1,44 @@
 import { useEffect, useState } from "react";
-import Item from "./Item";
+import Item from "../Item/Item";
 // import Paginate from "./Paginate";
-import * as constants from '../constants'
+import * as constants from '../../constants'
+import { ItemType } from "../TodoList";
 
-const defaultState = {
+export type PropsType = {
+    listProps: ItemType[],
+    keyword: string,
+    updateList: React.Dispatch<React.SetStateAction<ItemType[]>>
+}
+
+export type SearchType = {
+    selectedItems: number[],
+    isSelectAll: boolean,
+    currentPage: number,
+    itemsPerPage: number,
+}
+
+const defaultState: SearchType = {
     selectedItems: [],
     isSelectAll: false,
     currentPage: 1,
     itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE,
 }
 
-const List = ({ listProps, keyword, updateList }) => {
+const List = ({ listProps, keyword, updateList }: PropsType) => {
     const [currentState, setCurrentState] = useState(defaultState);
-    const [list, setList] = useState([]);
-    const [elmItem, setElmItem] = useState(<></>);
+    const [list, setList] = useState<ItemType[]>([]);
+    const [currentList, setCurrentList] = useState<ItemType[]>([]);
+    const [numPages] = useState(Math.ceil(list.length / currentState.itemsPerPage))
 
-    const deleteItem = (id) => {
-        const newList = list.filter(item => item.id !== id);
-        const selectedItems = currentState.selectedItems.filter(item => item !== id);
+    const deleteItem = (id: number) => {
+        const selectedItems = currentState.selectedItems.filter((item: number) => item !== id);
         setCurrentState((prevState) => {
-            let { currentPage, itemsPerPage } = prevState;
-            if (Math.ceil(newList.length / itemsPerPage) < currentPage) currentPage = Math.ceil(newList.length / itemsPerPage);
+            let { currentPage } = prevState;
+            if (numPages >  0 && numPages < currentPage) currentPage = numPages;
             return { ...prevState, selectedItems, currentPage };
         });
         const listUpdated = [...listProps];
-        updateList(listUpdated.filter(item => item.id !== id));
+        updateList(listUpdated.filter((item: ItemType) => item.id !== id));
     }
 
     const clearCompleted = () => {
@@ -32,7 +46,7 @@ const List = ({ listProps, keyword, updateList }) => {
         updateList(listUpdated.map(item => ({ ...item, status: 2 })));
     }
 
-    const handleSelect = (id) => {
+    const handleSelect = (id: number) => {
         const { selectedItems } = currentState;
         const index = selectedItems.indexOf(id);
         if (index > -1) {
@@ -44,15 +58,15 @@ const List = ({ listProps, keyword, updateList }) => {
         setCurrentState(state => ({ ...state, selectedItems, isSelectAll: selectedItems.length === list.length ? true : false }));
     }
 
-    const handleAction = (action) => {
+    const handleAction = (action: string) => {
         const { selectedItems } = currentState;
         if (selectedItems.length > 0) {
-            const actionList = list.filter(item => selectedItems.includes(item.id)).map(item => {
+            const actionList = list.filter((item: ItemType) => selectedItems.includes(item.id)).map((item: ItemType) => {
                 return { ...item, status: action === 'active' ? 2 : 1 };
             });
             const listUpdated = [...listProps];
-            const newList = listUpdated.reduce((newList, item) => {
-                let itemsFromActionList = actionList.filter(({ id }) => id === item.id);
+            const newList: Array<ItemType> = listUpdated.reduce((newList: Array<ItemType>, item: ItemType) => {
+                let itemsFromActionList: Array<ItemType> = actionList.filter(({ id }) => id === item.id);
                 if (itemsFromActionList.length > 0) {
                     newList.push(...itemsFromActionList);
                 } else newList.push(item);
@@ -65,14 +79,14 @@ const List = ({ listProps, keyword, updateList }) => {
 
     const handleSelectAll = () => {
         if (!currentState.isSelectAll) {
-            const selectedItems = list.map(item => item.id);
+            const selectedItems = list.map((item: ItemType) => item.id);
             setCurrentState(state => ({ ...state, selectedItems, isSelectAll: !state.isSelectAll }));
         } else {
             setCurrentState(state => ({ ...state, selectedItems: [], isSelectAll: !state.isSelectAll }));
         }
     }
 
-    const updateItemToList = (item) => {
+    const updateItemToList = (item: ItemType) => {
         const listUpdated = [...listProps];
         const newList = listUpdated.map(i => {
             if (i.id === item.id) {
@@ -100,7 +114,7 @@ const List = ({ listProps, keyword, updateList }) => {
     //     }
     // };
 
-    const handleScroll = (e) => {
+    const handleScroll = (e: any) => {
         // Chia mỗi đoạn là 3 item (itemsPerPage)
         // Check scrollTop > 5px của mỗi đoạn.(Tức là scroll qua 5px của item đầu tiên của đoạn)
         // VD để load 6 item thì cần scroll qua 5px của item thứ 4, tương tự load 9 item thì cần scroll qua 5px item thứ 7
@@ -116,8 +130,7 @@ const List = ({ listProps, keyword, updateList }) => {
 
     useEffect(() => {
         let searchResults = [...listProps];
-        let { selectedItems, itemsPerPage, currentPage } = currentState;
-        let elmItem = <tr><td colSpan={4}>No record</td></tr>;
+        let { itemsPerPage, currentPage } = currentState;
         if (keyword !== '') {
             searchResults = searchResults.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
         }
@@ -125,32 +138,38 @@ const List = ({ listProps, keyword, updateList }) => {
             return item1.status - item2.status || item1.id - item2.id;
         });
         if (searchResults && searchResults.length > 0) {
-            if (Math.ceil(searchResults.length / itemsPerPage) < currentPage) currentPage = currentPage - 1;
             const indexOfLastPost = currentPage * itemsPerPage;
             const indexOfFirstPost = indexOfLastPost - itemsPerPage;
             const currentList = searchResults.slice(indexOfFirstPost, indexOfLastPost);
-            elmItem = currentList.map((item, index) => {
-                return (
-                    <Item key={index} itemProps={item} selectedItemsProps={selectedItems}
-                        handleSelect={handleSelect}
-                        updateItemToList={updateItemToList}
-                        deleteItem={deleteItem}
-                    />
-                );
-            });
-        };
+            setCurrentList(currentList);
+        } else {
+            setCurrentList([]);
+        }
         setList(searchResults);
-        setElmItem(elmItem);
     }, [currentState, listProps, keyword]);
 
-    const isShowClear = list.filter(item => item.status === 1).length > 0;
+    const isShowClear = list.filter((item: ItemType) => item.status === 1).length > 0;
 
     return (
         <div className="panel">
-            <div className="panel-table" onScroll={(e) => handleScroll(e)}>
+            <div className="panel-table" onScroll={(e: any) => handleScroll(e)}>
                 <table className="table table-bordered table-hover">
                     <tbody>
-                        {elmItem}
+                        {
+                            currentList && currentList.length > 0 ? (
+                                currentList.map((item, index) => {
+                                    return (
+                                        <Item key={index} itemProps={item} selectedItemsProps={currentState.selectedItems}
+                                            handleSelect={handleSelect}
+                                            updateItemToList={updateItemToList}
+                                            deleteItem={deleteItem}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <tr><td colSpan={4}>No record</td></tr>
+                            )
+                        }
                     </tbody>
                 </table>
             </div>
