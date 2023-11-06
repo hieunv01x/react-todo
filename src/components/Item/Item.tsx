@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import * as constants from '../../constants'
 import { ItemType } from "../TodoList";
+import styles from './styles.module.css';
 
 export type PropsType = {
     itemProps: ItemType,
@@ -12,7 +13,7 @@ export type PropsType = {
 
 const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateItemToList }: PropsType) => {
     const [showInputEle, setShowInputEle] = useState(false);
-    const [item, setItem] = useState<ItemType>({ id: 0, name: '', status: 2 });
+    const [item, setItem] = useState<ItemType>({ id: 0, name: '', status: constants.ACTIVE_STATUS });
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
     const handleShowInputEle = () => {
@@ -36,8 +37,8 @@ const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateI
 
     return (
         <tr>
-            <td className={`item${item.status === constants.COMPLETED_STATUS ? " isChecked" : ""}`}>
-                <input type="checkbox" className="item-checkbox" checked={isChecked} onChange={() => handleSelect(item.id)} />
+            <td className={`${styles.item}${item.status === constants.COMPLETED_STATUS ? ` ${styles.isChecked}` : ""}`}>
+                <input type="checkbox" className={styles.itemCheckbox} checked={isChecked} onChange={() => handleSelect(item.id)} />
                 {
                     showInputEle ? (
                         <input
@@ -49,12 +50,12 @@ const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateI
                             autoFocus
                         />
                     ) : (
-                        <span className={`item-label${item.status === constants.COMPLETED_STATUS ? " isChecked" : ""}`} onDoubleClick={() => handleShowInputEle()}>
+                        <span className={`${styles.itemLabel}${item.status === constants.COMPLETED_STATUS ? ` ${styles.isChecked}` : ""}`} onDoubleClick={() => handleShowInputEle()}>
                             {item.name}
                         </span>
                     )
                 }
-                <span className="icon-delete" onClick={() => deleteItem(item.id)}>x</span>
+                <span className={styles.iconDelete} onClick={() => deleteItem(item.id)}>x</span>
             </td>
         </tr>
     );

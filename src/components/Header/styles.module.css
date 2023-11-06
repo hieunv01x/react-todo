@@ -1,0 +1,26 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    height: 70px;
+    padding: 15px;
+    border-bottom: 1px solid #cbc8c8;
+}
+
+.textLogo {
+    text-shadow: #6c602f 5px 0 20px;
+    font-family: cursive;
+}
+
+.themeChangeBtn {
+    border: 1px solid;
+    border-radius: 6px;
+    border-color: #d8d8d8;
+    border-bottom-color: #d8d8d8;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.themeChangeBtn:hover {
+    color: #000;
+    background-color: #d3d4d5;
+    border-color: #c6c7c8;
+}

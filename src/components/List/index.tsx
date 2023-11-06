@@ -3,6 +3,7 @@ import Item from "../Item/Item";
 // import Paginate from "./Paginate";
 import * as constants from '../../constants'
 import { ItemType } from "../TodoList";
+import styles from './styles.module.css';
 
 export type PropsType = {
     listProps: ItemType[],
@@ -62,7 +63,7 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
         const { selectedItems } = currentState;
         if (selectedItems.length > 0) {
             const actionList = list.filter((item: ItemType) => selectedItems.includes(item.id)).map((item: ItemType) => {
-                return { ...item, status: action === 'active' ? 2 : 1 };
+                return { ...item, status: action === 'active' ? constants.ACTIVE_STATUS : constants.COMPLETED_STATUS };
             });
             const listUpdated = [...listProps];
             const newList: Array<ItemType> = listUpdated.reduce((newList: Array<ItemType>, item: ItemType) => {
@@ -151,8 +152,8 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
     const isShowClear = list.filter((item: ItemType) => item.status === 1).length > 0;
 
     return (
-        <div className="panel">
-            <div className="panel-table" onScroll={(e: any) => handleScroll(e)}>
+        <div className={styles.panel}>
+            <div className={styles.panelTable} onScroll={(e: any) => handleScroll(e)}>
                 <table className="table table-bordered table-hover">
                     <tbody>
                         {
@@ -176,15 +177,15 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
             {
                 list && list.length > 0 && (
                     <>
-                        <div className="action-area">
+                        <div className={styles.actionArea}>
                             <span>{list.length} items left</span>
-                            <div className="action-left">
+                            <div className={styles.actionLeft}>
                                 <button type="button" className="btn btn-light" onClick={() => handleSelectAll()}>All</button>
                                 <button type="button" className="btn btn-light" onClick={() => handleAction('active')}>Active</button>
                                 <button type="button" className="btn btn-light" onClick={() => handleAction('completed')}>Completed</button>
                             </div>
-                            <div className="action-right">
-                                <button type="button" className={`btn btn-light${!isShowClear ? ' isHide' : ''} `} onClick={() => clearCompleted()} >Clear Completed</button>
+                            <div className={styles.actionRight}>
+                                <button type="button" className={`btn btn-light${!isShowClear ? ` ${styles.isHide}`: ''} `} onClick={() => clearCompleted()} >Clear Completed</button>
                             </div>
                         </div>
 

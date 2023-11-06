@@ -34,167 +34,24 @@ code {
   height: 100%;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  height: 70px;
-  padding: 15px;
-  border-bottom: 1px solid #cbc8c8;
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
 }
 
-.header h2 {
-  text-shadow: #6c602f 5px 0 20px;
-  font-family: cursive;
-}
-
-.theme-change-btn {
-  border: 1px solid;
+/* Track */
+::-webkit-scrollbar-track {
   border-radius: 10px;
-  border-color: #d8d8d8;
-  border-bottom-color: #d8d8d8;
+  box-shadow: inset 0 0 5px grey;
 }
 
-.main {
-  flex: 1;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 50px;
-}
-
-.search-area {
-  width: 50%;
-}
-
-.panel-table {
-  overflow-y: auto;
-  overflow-x: hidden;
-  margin-bottom: 20px;
-  height: 124px;
-}
-
-.item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.item-checkbox {
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  vertical-align: middle;
-  border: 1px solid #b8b5bf;
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
-  cursor: pointer;
-}
-
-.item-checkbox:checked {
-  appearance: auto;
-  clip-path: circle(50% at 50% 50%);
-}
-
-.item-label {
-  flex: 1;
-}
-
-.item.isChecked {
-  background-color: #efeff4;
-}
-
-.item-label.isChecked {
-  font-style: italic;
-  text-decoration: line-through;
-  text-decoration-color: #7d7d7d;
-}
-
-.item .form-control {
-  width: 95%;
-}
-
-.icon-delete {
-  cursor: pointer;
-  margin-top: -20px;
-  padding: 3px;
-  font-size: 12px;
-  color: #343434;
-  display: none;
-}
-
-.item:hover .icon-delete {
-  display: block;
-}
-
-.action-area {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.action-area>span {
-  flex: 1;
-}
-
-.action-left {
-  flex: 2;
-}
-
-.action-right {
-  flex: 1;
-}
-
-.isHide {
-  display: none !important;
-}
-
-.footer {
-  border-top: 1px solid #cbc8c8;
-  text-align: center;
-  height: 50px;
-}
-
-/* Paging */
-ul {
-  list-style: none;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 50px;
-  gap: 20px;
-}
-
-.pagination .page-number {
-  font-size: 16px;
-  font-weight: 600;
-  color: #00a8ff;
-  background: #fff;
-  padding: 10px 20px;
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888080;
   border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.pagination .page-number:hover {
-  color: #fff;
-  background: #a7a5c8;
-}
-
-.pagination .active {
-  color: #fff;
-  background: #2626e3;
-}
-
-.pagination .active:hover {
-  color: #00a8ff;
-  background: #0f38e9;
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3939;
 }

@@ -2,6 +2,7 @@ import List from "../List";
 import { items } from "../../mocks/items";
 import { useEffect, useState } from "react";
 import { useThemeContext } from "../../providers/ThemeProvider";
+import styles from './styles.module.css';
 
 export type ItemType = {
     id: number,
@@ -36,9 +37,9 @@ const TodoList = () => {
     }, []);
 
     return (
-        <main className={`main ${theme}`}>
-            <div className="content">
-                <div className="search-area">
+        <main className={`${styles.main} ${theme}`}>
+            <div className={styles.content}>
+                <div className={styles.searchArea}>
                     <div className="input-group">
                         <input type="text" className="form-control" placeholder="What needs to be done?"
                             onChange={(e) => handleSearch(e)}

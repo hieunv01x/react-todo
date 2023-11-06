@@ -1,0 +1,16 @@
+.main {
+    flex: 1;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 50px;
+}
+
+.searchArea {
+    width: 50%;
+}

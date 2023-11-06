@@ -1,0 +1,29 @@
+.panelTable {
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 20px;
+    height: 124px;
+}
+
+
+.actionArea {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.actionArea>span {
+    flex: 1;
+}
+
+.actionLeft {
+    flex: 2;
+}
+
+.actionRight {
+    flex: 1;
+}
+
+.isHide {
+    display: none !important;
+}
