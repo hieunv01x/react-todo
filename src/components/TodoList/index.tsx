@@ -1,6 +1,6 @@
 import List from "../List";
 import { items } from "../../mocks/items";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useThemeContext } from "../../providers/ThemeProvider";
 import styles from './styles.module.css';
 
@@ -14,6 +14,10 @@ const TodoList = () => {
     const { theme } = useThemeContext();
     const [keyword, setKeyword] = useState('');
     const [list, setList] = useState<ItemType[]>([]);
+
+    const updateList = useCallback((list: ItemType[]) => {
+        setList(list);
+    }, [])
 
     const handleSearch = (e: any) => {
         const keyword = e.target.value;
@@ -45,7 +49,7 @@ const TodoList = () => {
                             onChange={(e) => handleSearch(e)}
                             onKeyDown={(e) => checkKeyDown(e)} />
                     </div>
-                    <List listProps={list} keyword={keyword} updateList={setList} />
+                    <List listProps={list} keyword={keyword} updateList={updateList} />
                 </div>
             </div>
         </main>

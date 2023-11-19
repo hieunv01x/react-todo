@@ -13,8 +13,7 @@ export type PropsType = {
 
 const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateItemToList }: PropsType) => {
     const [showInputEle, setShowInputEle] = useState(false);
-    const [item, setItem] = useState<ItemType>({ id: 0, name: '', status: constants.ACTIVE_STATUS });
-    const [selectedItems, setSelectedItems] = useState<number[]>([]);
+    const [item, setItem] = useState<ItemType>({ id: -1, name: '', status: constants.ACTIVE_STATUS });
 
     const handleShowInputEle = () => {
         setShowInputEle(!showInputEle);
@@ -29,12 +28,9 @@ const Item = ({ itemProps, selectedItemsProps, deleteItem, handleSelect, updateI
         setItem(itemProps);
     }, [itemProps])
 
-    useEffect(() => {
-        setSelectedItems(selectedItemsProps);
-    }, [selectedItemsProps])
-
-    const isChecked = selectedItems.length > 0 && selectedItems.includes(item.id);
-
+    const isChecked = selectedItemsProps.length > 0 && selectedItemsProps.includes(item.id);
+    console.log("item", item.id);
+    
     return (
         <tr>
             <td className={`${styles.item}${item.status === constants.COMPLETED_STATUS ? ` ${styles.isChecked}` : ""}`}>

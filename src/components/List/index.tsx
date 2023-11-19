@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import Item from "../Item/Item";
 // import Paginate from "./Paginate";
 import * as constants from '../../constants'
@@ -11,44 +11,34 @@ export type PropsType = {
     updateList: React.Dispatch<React.SetStateAction<ItemType[]>>
 }
 
-export type SearchType = {
-    selectedItems: number[],
-    isSelectAll: boolean,
-    currentPage: number,
-    itemsPerPage: number,
-}
-
-const defaultState: SearchType = {
-    selectedItems: [],
-    isSelectAll: false,
-    currentPage: 1,
-    itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE,
-}
+const ItemMemo = memo(Item);
 
 const List = ({ listProps, keyword, updateList }: PropsType) => {
-    const [currentState, setCurrentState] = useState(defaultState);
+    const [itemsPerPage, setItemsPerPage] = useState(constants.DEFAULT_ITEM_PER_PAGE);
+    const [selectedItems, setSelectedItems] = useState<number[]>([]);
+    const [isSelectAll, setIsSelectAll] = useState(false);
+    const [currentPage] = useState(1);
     const [list, setList] = useState<ItemType[]>([]);
     const [currentList, setCurrentList] = useState<ItemType[]>([]);
-    const [numPages] = useState(Math.ceil(list.length / currentState.itemsPerPage))
+    // const [numPages] = useState(Math.ceil(list.length / itemsPerPage))
 
-    const deleteItem = (id: number) => {
-        const selectedItems = currentState.selectedItems.filter((item: number) => item !== id);
-        setCurrentState((prevState) => {
-            let { currentPage } = prevState;
-            if (numPages >  0 && numPages < currentPage) currentPage = numPages;
-            return { ...prevState, selectedItems, currentPage };
-        });
+    const deleteItem = useCallback((id: number) => {
+        setSelectedItems((prev) => {
+            const selectedItems = prev.filter((item: number) => item !== id);
+            return [...selectedItems];
+        })
+        // Sử dụng khi phân trang dạng số, xóa phần tử ở trang cuối sẽ set lại currentpage
+        // if (numPages > 0 && numPages < currentPage) setCurrentPage(numPages);
         const listUpdated = [...listProps];
         updateList(listUpdated.filter((item: ItemType) => item.id !== id));
-    }
+    }, [listProps, updateList])
 
     const clearCompleted = () => {
         const listUpdated = [...listProps];
         updateList(listUpdated.map(item => ({ ...item, status: 2 })));
     }
 
-    const handleSelect = (id: number) => {
-        const { selectedItems } = currentState;
+    const handleSelect = useCallback((id: number) => {
         const index = selectedItems.indexOf(id);
         if (index > -1) {
             selectedItems.splice(index, 1);
@@ -56,14 +46,14 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
             selectedItems.push(id);
         }
 
-        setCurrentState(state => ({ ...state, selectedItems, isSelectAll: selectedItems.length === list.length ? true : false }));
-    }
+        setSelectedItems([...selectedItems]);
+        setIsSelectAll(selectedItems.length === list.length ? true : false);
+    }, [selectedItems, list.length])
 
     const handleAction = (action: string) => {
-        const { selectedItems } = currentState;
         if (selectedItems.length > 0) {
             const actionList = list.filter((item: ItemType) => selectedItems.includes(item.id)).map((item: ItemType) => {
-                return { ...item, status: action === 'active' ? constants.ACTIVE_STATUS : constants.COMPLETED_STATUS };
+                return { ...item, status: action === constants.ACTIVE ? constants.ACTIVE_STATUS : constants.COMPLETED_STATUS };
             });
             const listUpdated = [...listProps];
             const newList: Array<ItemType> = listUpdated.reduce((newList: Array<ItemType>, item: ItemType) => {
@@ -79,15 +69,16 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
     }
 
     const handleSelectAll = () => {
-        if (!currentState.isSelectAll) {
+        if (!isSelectAll) {
             const selectedItems = list.map((item: ItemType) => item.id);
-            setCurrentState(state => ({ ...state, selectedItems, isSelectAll: !state.isSelectAll }));
+            setSelectedItems([...selectedItems]);
         } else {
-            setCurrentState(state => ({ ...state, selectedItems: [], isSelectAll: !state.isSelectAll }));
+            setSelectedItems([]);
         }
+        setIsSelectAll((prev) => (!prev));
     }
 
-    const updateItemToList = (item: ItemType) => {
+    const updateItemToList = useCallback((item: ItemType) => {
         const listUpdated = [...listProps];
         const newList = listUpdated.map(i => {
             if (i.id === item.id) {
@@ -96,7 +87,7 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
             return i;
         });
         updateList(newList);
-    }
+    }, [listProps, updateList])
 
     // paginate(currentPage) {
     //     this.setState(state => ({ ...state, currentPage }));
@@ -119,9 +110,9 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
         // Chia mỗi đoạn là 3 item (itemsPerPage)
         // Check scrollTop > 5px của mỗi đoạn.(Tức là scroll qua 5px của item đầu tiên của đoạn)
         // VD để load 6 item thì cần scroll qua 5px của item thứ 4, tương tự load 9 item thì cần scroll qua 5px item thứ 7
-        if (e.currentTarget.scrollTop === 0) setCurrentState(state => ({ ...state, itemsPerPage: constants.DEFAULT_ITEM_PER_PAGE }))
-        if (e.currentTarget.scrollTop > (currentState.itemsPerPage - constants.DEFAULT_ITEM_PER_PAGE) * 40 + 5) {
-            setCurrentState(state => ({ ...state, itemsPerPage: state.itemsPerPage + constants.DEFAULT_ITEM_PER_PAGE }))
+        if (e.currentTarget.scrollTop === 0) setItemsPerPage(constants.DEFAULT_ITEM_PER_PAGE)
+        if (e.currentTarget.scrollTop > (itemsPerPage - constants.DEFAULT_ITEM_PER_PAGE) * 40 + 5) {
+            setItemsPerPage(prev => (prev + constants.DEFAULT_ITEM_PER_PAGE))
         }
     }
 
@@ -131,7 +122,6 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
 
     useEffect(() => {
         let searchResults = [...listProps];
-        let { itemsPerPage, currentPage } = currentState;
         if (keyword !== '') {
             searchResults = searchResults.filter((item) => item.name?.toLowerCase().includes(keyword.trim().toLowerCase()));
         }
@@ -142,12 +132,12 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
             const indexOfLastPost = currentPage * itemsPerPage;
             const indexOfFirstPost = indexOfLastPost - itemsPerPage;
             const currentList = searchResults.slice(indexOfFirstPost, indexOfLastPost);
-            setCurrentList(currentList);
+            setCurrentList([...currentList]);
         } else {
             setCurrentList([]);
         }
-        setList(searchResults);
-    }, [currentState, listProps, keyword]);
+        setList([...searchResults]);
+    }, [currentPage, itemsPerPage, listProps, keyword]);
 
     const isShowClear = list.filter((item: ItemType) => item.status === 1).length > 0;
 
@@ -158,9 +148,9 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
                     <tbody>
                         {
                             currentList && currentList.length > 0 ? (
-                                currentList.map((item, index) => {
+                                currentList.map((item) => {
                                     return (
-                                        <Item key={index} itemProps={item} selectedItemsProps={currentState.selectedItems}
+                                        <ItemMemo key={item.id} itemProps={item} selectedItemsProps={selectedItems}
                                             handleSelect={handleSelect}
                                             updateItemToList={updateItemToList}
                                             deleteItem={deleteItem}
@@ -181,11 +171,11 @@ const List = ({ listProps, keyword, updateList }: PropsType) => {
                             <span>{list.length} items left</span>
                             <div className={styles.actionLeft}>
                                 <button type="button" className="btn btn-light" onClick={() => handleSelectAll()}>All</button>
-                                <button type="button" className="btn btn-light" onClick={() => handleAction('active')}>Active</button>
-                                <button type="button" className="btn btn-light" onClick={() => handleAction('completed')}>Completed</button>
+                                <button type="button" className="btn btn-light" onClick={() => handleAction(constants.ACTIVE)}>Active</button>
+                                <button type="button" className="btn btn-light" onClick={() => handleAction(constants.COMPLETED)}>Completed</button>
                             </div>
                             <div className={styles.actionRight}>
-                                <button type="button" className={`btn btn-light${!isShowClear ? ` ${styles.isHide}`: ''} `} onClick={() => clearCompleted()} >Clear Completed</button>
+                                <button type="button" className={`btn btn-light${!isShowClear ? ` ${styles.isHide}` : ''} `} onClick={() => clearCompleted()} >Clear Completed</button>
                             </div>
                         </div>
 
